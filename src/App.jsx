@@ -1,10 +1,19 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+const debounce = (callback, delay) => {
+  let timeout;
+  return (value) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
+      callback(value);
+    }, delay);
+  };
+};
 
 function App() {
   const [inputValue, setInputValue] = useState("");
   const [results, setResults] = useState(null);
 
-  useEffect(() => {
+  const fetchProducts = (inputValue) => {
     if (inputValue.length === 0) {
       setResults(null);
     } else {
@@ -15,6 +24,12 @@ function App() {
         })
         .catch((error) => console.error(error));
     }
+  };
+
+  const debouncedFetchProducts = useCallback(debounce(fetchProducts, 500), []);
+
+  useEffect(() => {
+    debouncedFetchProducts(inputValue);
   }, [inputValue]);
 
   return (
